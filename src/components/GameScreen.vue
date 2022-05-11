@@ -1,5 +1,5 @@
 <template>
-e  <v-app>
+   <v-app>
     <v-container :width="screenWidth" :height="screenHeight" class="mt-5">
       <v-row align="center">
         <GameCanvas v-bind="canvasAttributes"/>
