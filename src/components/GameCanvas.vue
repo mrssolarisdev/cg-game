@@ -21,9 +21,21 @@
     },
     data: () => ({}),
     created (){
+        this.loop()
     },
     methods: {
-
+        loop() {
+            console.log('loop')
+            this.updateGame()
+            this.render()
+            window.requestAnimationFrame(this.loop)
+        },
+        updateGame(){
+            console.log('update')
+        },
+        render(){
+            console.log('rendering')
+        }
     }
   }
 </script>
