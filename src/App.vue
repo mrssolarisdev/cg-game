@@ -1,9 +1,10 @@
 <template>
   <v-app>
-    <v-main>
-      <GameScreen />
-
-    </v-main>
+    <div>
+      <v-main>
+        <GameScreen/>
+      </v-main>
+    </div> 
   </v-app>
 </template>
 
