@@ -1,20 +1,20 @@
 <template>
   <v-app>
     <v-main>
-      <Game />
+      <GameScreen />
 
     </v-main>
   </v-app>
 </template>
 
 <script>
-import Game from './components/Game';
+import GameScreen from './components/GameScreen';
 
 export default {
   name: 'App',
 
   components: {
-    Game,
+    GameScreen,
   },
 
   data: () => ({}),
