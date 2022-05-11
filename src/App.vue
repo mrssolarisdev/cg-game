@@ -17,8 +17,6 @@ export default {
     Game,
   },
 
-  data: () => ({
-    //
-  }),
+  data: () => ({}),
 };
 </script>
