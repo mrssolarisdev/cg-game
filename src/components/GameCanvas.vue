@@ -6,7 +6,7 @@
 
 <script>
   export default {
-    name: 'GameScreen',
+    name: 'GameCanvas',
     props: {
         border: {
             required: false,
@@ -19,19 +19,28 @@
             type: String
         }
     },
-    data: () => ({}),
+    data: () => ({
+        lastRender: null
+    }),
     created (){
-        this.loop()
+        // Solicita que o navegador execute essa função assim que possível, mas antes da próxima renderização de tela.
+        window.requestAnimationFrame(this.loop)
     },
     methods: {
-        loop() {
-            console.log('loop')
-            this.updateGame()
+        /* Função gameloop. Recebe uma timestamp através da função de requisição de frame do DOM, executada na criação do componente GameCanvas.
+        Essa função executa outras três: update (responsável por atualizar o estado dos elementos do jogo), render (renderiza os elementos do jogo com base nos estados
+        atualizados pela função anterior, update) e requestAnimationFrame, que, dentro da função loop é executada novamente, recebendo como callback a própria função loop,
+        a rodando novamente para o próximo frame solicitado ao navegador. */
+        loop(timestamp) {
+            let elapsedTime = timestamp - this.lastRender
+            console.log('loop', timestamp)
+            this.update(elapsedTime)
             this.render()
-            window.requestAnimationFrame(this.loop)
+            this.lastRender = timestamp
+            //window.requestAnimationFrame(this.loop)
         },
-        updateGame(){
-            console.log('update')
+        update(timestamp){
+            console.log('update', timestamp)
         },
         render(){
             console.log('rendering')
