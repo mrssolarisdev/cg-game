@@ -1,10 +1,12 @@
 <template>
   <v-container>
+      <div :style="`width: 30px; height: 30px; position: relative; background: red; top: ${foesStates.foe1.x/25}px;`"></div>
     <canvas id="myCanvas" :style="`border: ${border}; background: ${backgroundColor}; width: inherit; height: inherit`"></canvas>
   </v-container>
 </template>
 
 <script>
+
   export default {
     name: 'GameCanvas',
     props: {
@@ -20,7 +22,10 @@
         }
     },
     data: () => ({
-        lastRender: null
+        lastRender: null,
+        foesStates: {
+            foe1: {x: 40, y: 40}
+        },
     }),
     created (){
         // Solicita que o navegador execute essa função assim que possível, mas antes da próxima renderização de tela.
@@ -37,10 +42,15 @@
             this.update(elapsedTime)
             this.render()
             this.lastRender = timestamp
-            //window.requestAnimationFrame(this.loop)
+            window.requestAnimationFrame(this.loop)
         },
         update(timestamp){
-            console.log('update', timestamp)
+            for (const [_, states] of Object.entries(this.foesStates)) {
+                console.log(states, _);
+                states.x += timestamp
+                states.y += timestamp
+            }
+            console.log('update', timestamp, this.foesStates)
         },
         render(){
             console.log('rendering')
