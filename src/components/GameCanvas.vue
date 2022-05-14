@@ -20,11 +20,22 @@
         }
     },
     data: () => ({
-        lastRender: null
+        lastRender: null,
+        gameCanvas: null,
+        dinoStates: {
+            posX: 0,
+            posY: 0,
+            velX: 5,
+            velY: 5,
+            size: 50
+        }
     }),
     created (){
         // Solicita que o navegador execute essa função assim que possível, mas antes da próxima renderização de tela.
         window.requestAnimationFrame(this.loop)
+    },
+    mounted() {
+        this.gameCanvas = document.getElementById('myCanvas')
     },
     methods: {
         /* Função gameloop. Recebe uma timestamp através da função de requisição de frame do DOM, executada na criação do componente GameCanvas.
@@ -37,13 +48,19 @@
             this.update(elapsedTime)
             this.render()
             this.lastRender = timestamp
-            //window.requestAnimationFrame(this.loop)
+            window.requestAnimationFrame(this.loop)
         },
         update(timestamp){
-            console.log('update', timestamp)
+            this.dinoStates.posX += this.dinoStates.velX
+            this.dinoStates.posY += this.dinoStates.velY
+            console.log('update', timestamp, this.dinoStates.posX, this.dinoStates.posY)
         },
-        render(){
-            console.log('rendering')
+        render() {
+            let ctx = this.gameCanvas.getContext('2d')
+            ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
+            ctx.fillStyle = 'pink'
+            ctx.fillRect(this.dinoStates.posX, this.dinoStates.posY, this.dinoStates.size, this.dinoStates.size)
+            console.log('rendering', this.gameCanvas)
         }
     }
   }
