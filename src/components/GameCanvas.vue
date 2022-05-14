@@ -45,7 +45,7 @@
     },
     mounted() {
         this.gameCanvas = document.getElementById('myCanvas')
-        document.addEventListener('keydown', e => {this.pressedKeys.add(e.code)})
+        document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code)})
     },
     methods: {
         /* Função gameloop. Recebe uma timestamp através da função de requisição de frame do DOM, executada na criação do componente GameCanvas.
