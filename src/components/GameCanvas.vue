@@ -22,12 +22,20 @@
     data: () => ({
         lastRender: null,
         gameCanvas: null,
+        pressedKey: null,
         dinoStates: {
             posX: 0,
             posY: 0,
             velX: 5,
             velY: 5,
             size: 50
+        },
+        movements: {
+            up: null,
+            down: null,
+            left: null,
+            right: null,
+            special: null
         }
     }),
     created (){
@@ -36,6 +44,7 @@
     },
     mounted() {
         this.gameCanvas = document.getElementById('myCanvas')
+        document.addEventListener('keydown', e => this.pressedKey = e.key)
     },
     methods: {
         /* Função gameloop. Recebe uma timestamp através da função de requisição de frame do DOM, executada na criação do componente GameCanvas.
@@ -45,10 +54,33 @@
         loop(timestamp) {
             let elapsedTime = timestamp - this.lastRender
             console.log('loop', timestamp)
+            this.handleEvents()
             this.update(elapsedTime)
             this.render()
             this.lastRender = timestamp
             window.requestAnimationFrame(this.loop)
+        },
+        handleEvents() {
+            console.log('tecla pressionada', this.pressedKey)
+            switch(this.pressedKey) {
+                case ('w'): case ('ArrowUp'): case ('8'): 
+                    this.clearMovementsSet()
+                    this.movements.up = true
+                    break
+                case ('a'): case ('ArrowLeft'): case ('4'): 
+                    this.clearMovementsSet()
+                    this.movements.left = true
+                    break
+                case ('s'): case ('ArrowDown'): case ('2'): 
+                    this.clearMovementsSet()
+                    this.movements.down
+                    break
+                case ('d'): case ('ArrowRight'): case ('6'): 
+                    this.clearMovementsSet()
+                    this.movements.right 
+                    break
+            }
+            this.pressedKey = null
         },
         update(timestamp){
             this.dinoStates.posX += this.dinoStates.velX
@@ -61,6 +93,9 @@
             ctx.fillStyle = 'pink'
             ctx.fillRect(this.dinoStates.posX, this.dinoStates.posY, this.dinoStates.size, this.dinoStates.size)
             console.log('rendering', this.gameCanvas)
+        },
+        clearMovementsSet() {
+            this.movements = {up: null, down: null, left: null, right: null, special: null}
         }
     }
   }
