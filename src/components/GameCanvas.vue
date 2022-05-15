@@ -131,10 +131,9 @@
             ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
             ctx.fillStyle = 'pink'
             ctx.fillRect(this.dinoStates.posX, this.dinoStates.posY, this.dinoStates.size, this.dinoStates.size)
-            //console.log('rendering', this.gameCanvas)
         },
         clearMovementsSet() {
-            this.movements = {up: null, down: null, left: null, right: null, special: null}
+            this.movements = {...this.movements, up: null, down: null, left: null, right: null, special: null}
         },
         isItPressed(key) {
             return this.pressedKeys.has(key)
