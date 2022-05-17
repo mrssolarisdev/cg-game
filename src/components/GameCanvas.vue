@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <canvas id="myCanvas" class="gameCanvas" :style="`border: ${border}; background: ${backgroundColor};`" width="1920" height="720"></canvas>
+    <canvas id="myCanvas" class="gameCanvas" :style="`border: ${border}; background: ${backgroundColor};`" v-bind="getCanvasDimensions"></canvas>
   </v-container>
 </template>
 
@@ -41,6 +41,11 @@ import img from "../assets/img/background.png";
             special: false
         }
     }),
+    computed: {
+        getCanvasDimensions() {
+            return {width: (window.innerWidth - 370), height: (window.innerHeight + 10) }
+        }
+    },
     created (){
         // Solicita que o navegador execute essa função assim que possível, mas antes da próxima renderização de tela.
         window.requestAnimationFrame(this.loop)
