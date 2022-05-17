@@ -141,6 +141,7 @@ import img from "../assets/img/background.png";
             ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
             // Impede a imagem de sofer smoothing pelo mecanismo de renderização do browser. Melhora a nitidez.
             ctx.imageSmoothingEnabled = false;
+            // TODO: tentar usar clearRect para apagar a imagem anterior
             ctx.drawImage(this.gameBackground, this.bgStates.posX, 0, this.gameCanvas.width, this.gameCanvas.height);
             if(this.bgStates.posX < 0) {
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
