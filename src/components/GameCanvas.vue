@@ -137,15 +137,13 @@ import img from "../assets/img/background.png";
             //console.log('update', timestamp, this.bgStates.posX, this.bgStates.posY)
         },
         render() {
-            let img1 = this.gameBackground
-            let img2 = this.gameBackground
             let ctx = this.gameCanvas.getContext('2d')
             ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
             // Impede a imagem de sofer smoothing pelo mecanismo de renderização do browser. Melhora a nitidez.
             ctx.imageSmoothingEnabled = false;
-            ctx.drawImage(img1, this.bgStates.posX, 0, this.gameCanvas.width, this.gameCanvas.height);
+            ctx.drawImage(this.gameBackground, this.bgStates.posX, 0, this.gameCanvas.width, this.gameCanvas.height);
             if(this.bgStates.posX < 0) {
-                ctx.drawImage(img2, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
+                ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
             }
             if (this.bgStates.posX + this.gameCanvas.width < 0) {
                 this.bgStates.posX += this.gameCanvas.width
