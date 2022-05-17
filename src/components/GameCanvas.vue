@@ -1,12 +1,11 @@
 <template>
   <v-container>
-      <div :style="`width: 30px; height: 30px; position: relative; background: red; top: ${foesStates.foe1.x/25}px;`"></div>
-    <canvas id="myCanvas" :style="`border: ${border}; background: ${backgroundColor}; width: inherit; height: inherit`"></canvas>
+    <canvas id="myCanvas" class="gameCanvas" :style="`border: ${border}; background: ${backgroundColor};`" width="1920" height="720"></canvas>
   </v-container>
 </template>
 
 <script>
-
+import img from "../assets/img/background.png";
   export default {
     name: 'GameCanvas',
     props: {
@@ -24,6 +23,7 @@
     data: () => ({
         lastRender: null,
         gameCanvas: null,
+        gameBackground: null,
         pressedKeys: new Set(),
         pressedKeyEvent: null,
         dinoStates: {
@@ -46,6 +46,8 @@
         window.requestAnimationFrame(this.loop)
     },
     mounted() {
+        this.gameBackground = new Image()
+        this.gameBackground.src = img
         this.gameCanvas = document.getElementById('myCanvas')
         document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code)})
     },
@@ -131,8 +133,9 @@
         render() {
             let ctx = this.gameCanvas.getContext('2d')
             ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
-            ctx.fillStyle = 'pink'
-            ctx.fillRect(this.dinoStates.posX, this.dinoStates.posY, this.dinoStates.size, this.dinoStates.size)
+            // Impede a imagem de sofer smoothing pelo mecanismo de renderização do browser. Melhora a nitidez.
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(this.gameBackground, 0, 0, this.gameCanvas.width, this.gameCanvas.height);
         },
         clearMovementsSet() {
             this.movements = {...this.movements, up: null, down: null, left: null, right: null, special: null}
