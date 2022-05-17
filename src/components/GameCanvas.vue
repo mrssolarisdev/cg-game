@@ -26,10 +26,10 @@ import img from "../assets/img/background.png";
         gameBackground: null,
         pressedKeys: new Set(),
         pressedKeyEvent: null,
-        dinoStates: {
+        bgStates: {
             posX: 0,
             posY: 0,
-            velX: 5,
+            velX: 15,
             velY: 5,
             size: 50
         },
@@ -116,31 +116,41 @@ import img from "../assets/img/background.png";
 
             // TODO: Na versão final esses updates de posicionamento vão ser responsáveis por mover o cenário (não o personagem) e por mudar os sprites no momento.
             if (this.movements.up) {
-                this.dinoStates.posY -= this.dinoStates.velY
+                this.bgStates.posY -= this.bgStates.velY
                 this.movements.up = false
             }
             // TODO: aplicar ou não aplicar movimentação pra baixo a depender da mecânica escolhida.
             if (this.movements.down) {
-                this.dinoStates.posY += this.dinoStates.velY
+                this.bgStates.posY += this.bgStates.velY
                 this.movements.down = false
             }
             if (this.movements.left) {
-                this.dinoStates.posX -= this.dinoStates.velX
+                this.bgStates.posX += this.bgStates.velX
                 this.movements.left = false
             }
             if (this.movements.right) {
-                this.dinoStates.posX += this.dinoStates.velX
+                // Movimento é invertido para que o background se mova para trás e dê a sensaçao de movimento.
+                this.bgStates.posX -= this.bgStates.velX
                 // Desliga o movimento para a direita uma vez que a movimentação já foi feita. Se a tratativa não fosse feita, o personagem iria para a direita pra sempre.
                 this.movements.right = false
             }
-            //console.log('update', timestamp, this.dinoStates.posX, this.dinoStates.posY)
+            //console.log('update', timestamp, this.bgStates.posX, this.bgStates.posY)
         },
         render() {
+            let img1 = this.gameBackground
+            let img2 = this.gameBackground
             let ctx = this.gameCanvas.getContext('2d')
             ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
             // Impede a imagem de sofer smoothing pelo mecanismo de renderização do browser. Melhora a nitidez.
             ctx.imageSmoothingEnabled = false;
-            ctx.drawImage(this.gameBackground, 0, 0, this.gameCanvas.width, this.gameCanvas.height);
+            ctx.drawImage(img1, this.bgStates.posX, 0, this.gameCanvas.width, this.gameCanvas.height);
+            if(this.bgStates.posX < 0) {
+                ctx.drawImage(img2, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
+            }
+            if (this.bgStates.posX + this.gameCanvas.width < 0) {
+                this.bgStates.posX += this.gameCanvas.width
+                ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
+            }
         },
         clearMovementsSet() {
             this.movements = {...this.movements, up: null, down: null, left: null, right: null, special: null}
