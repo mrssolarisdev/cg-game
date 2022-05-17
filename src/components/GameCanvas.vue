@@ -141,7 +141,13 @@ import img from "../assets/img/background.png";
             ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
             // Impede a imagem de sofer smoothing pelo mecanismo de renderização do browser. Melhora a nitidez.
             ctx.imageSmoothingEnabled = false;
-            // TODO: tentar usar clearRect para apagar a imagem anterior
+            /* Colocar uma nova imagem logo depois da outra ao invés de retira-la do canvas antes de criar outra ou somente
+            mudar seus atributos de posição não vai criar uma bagunça de memória, uma vez que o canvas não guarda a referência
+            para a imagem colocada nele como aconteceria com qualquer outro elemento do DOM. Uma vez que a imagem é desenhada no 
+            canvas, ela vira somente uma sequência de pixels para os quais não se tem referência.
+            obs: a função clearRect limparia somente o que está dentro da area do canvas, o que deixa de ser verdade quando a imagem
+            sai dele.
+            */
             ctx.drawImage(this.gameBackground, this.bgStates.posX, 0, this.gameCanvas.width, this.gameCanvas.height);
             if(this.bgStates.posX < 0) {
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
