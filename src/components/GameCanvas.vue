@@ -5,7 +5,9 @@
 </template>
 
 <script>
-import img from "../assets/img/background.png";
+import gameBg from "../assets/img/game_bg.webp";
+import dino from "../assets/img/dino_sprite.png";
+
   export default {
     name: 'GameCanvas',
     props: {
@@ -39,6 +41,16 @@ import img from "../assets/img/background.png";
             left: false,
             right: false,
             special: false
+        },
+        dinoCharacter: null,
+        dinoCharacterData: {
+            dinoCharacter: null,
+            sprite: dino,
+            dimensions: {
+                x: 1350,
+                y: 134,
+                spaceBetweenDinos: 48 // 48 pixels entre cada um
+            }
         }
     }),
     computed: {
@@ -48,12 +60,44 @@ import img from "../assets/img/background.png";
     },
     created (){
         // Solicita que o navegador execute essa função assim que possível, mas antes da próxima renderização de tela.
-        window.requestAnimationFrame(this.loop)
+        //window.requestAnimationFrame(this.loop)
     },
     mounted() {
+        this.dinoCharacter = new Image()
+        this.dinoCharacter.src = this.dinoCharacterData.sprite
+        this.dinoCharacter.width = this.dinoCharacterData.x
+        this.dinoCharacter.height = this.dinoCharacterData.y
         this.gameBackground = new Image()
-        this.gameBackground.src = img
+        this.gameBackground.src = gameBg
         this.gameCanvas = document.getElementById('myCanvas')
+        // Há 10 dinossauros, 20 altura, 84 largura
+        let listaFrames = []
+        let width = 84
+        let height = 20
+        let qtdColunas = 10
+        for (let i = 0; i < 1; i++) {
+            for (let j = 0; j < qtdColunas; j++) {
+                console.log('rodou')
+                let x1 = width*j
+                let y1 = height*i
+                let x2 = x1+width
+                let y2 = y1+height
+                listaFrames[i*qtdColunas+j] = {x1, x2, y1, y2}
+            }
+        }
+        console.log(listaFrames[0])
+        let ctx = this.gameCanvas.getContext('2d')
+        ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
+        // imagem a ser desenhada, 
+        // posicao em x do começo do corte da imagem
+        // posicao em y do começo do corte da imagem
+        // largura em x do corte na imagem
+        // largura em y do corte na imagem
+        // posicao x da imagem resultado no canvas
+        // posicao y da imagem resultado no canvas
+        // largura da imagem
+        // altura da imagem
+        ctx.drawImage(this.dinoCharacter, 0, 0, 160, 300, 0, 0, 180, 260);
         document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code)})
     },
     methods: {
@@ -120,10 +164,10 @@ import img from "../assets/img/background.png";
                 this.movements.up = false
             }
             // TODO: aplicar ou não aplicar movimentação pra baixo a depender da mecânica escolhida.
-            if (this.movements.down) {
-                this.bgStates.posY += this.bgStates.velY
-                this.movements.down = false
-            }
+            // if (this.movements.down) {
+            //     this.bgStates.posY += this.bgStates.velY
+            //     this.movements.down = false
+            // }
             if (this.movements.left) {
                 this.bgStates.posX += this.bgStates.velX
                 this.movements.left = false
@@ -148,7 +192,7 @@ import img from "../assets/img/background.png";
             obs: a função clearRect limparia somente o que está dentro da area do canvas, o que deixa de ser verdade quando a imagem
             sai dele.
             */
-            ctx.drawImage(this.gameBackground, this.bgStates.posX, 0, this.gameCanvas.width, this.gameCanvas.height);
+            //ctx.drawImage(this.dinoCharacter, 0, 0, 50, 50);
             if(this.bgStates.posX < 0) {
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
             }
