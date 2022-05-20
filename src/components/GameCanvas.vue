@@ -73,16 +73,18 @@ import dino from "../assets/img/dino_sprite.png";
         // Há 10 dinossauros, 20 altura, 84 largura
         let listaFrames = []
         let width = 84
-        let height = 20
+        let height = 97
         let qtdColunas = 10
+        let paddingTop = 21
+        let paddingLeft = 48
         for (let i = 0; i < 1; i++) {
             for (let j = 0; j < qtdColunas; j++) {
                 console.log('rodou')
-                let x1 = width*j
-                let y1 = height*i
-                let x2 = x1+width
-                let y2 = y1+height
-                listaFrames[i*qtdColunas+j] = {x1, x2, y1, y2}
+                let x1 = paddingLeft+(width*j)
+                let y1 = paddingTop+(height*i)
+                // let x2 = x1+width
+                // let y2 = y1+height
+                listaFrames[i*qtdColunas+j] = {x1, y1}
             }
         }
         console.log(listaFrames[0])
@@ -97,7 +99,7 @@ import dino from "../assets/img/dino_sprite.png";
         // posicao y da imagem resultado no canvas
         // largura da imagem
         // altura da imagem
-        ctx.drawImage(this.dinoCharacter, 0, 0, 160, 300, 0, 0, 180, 260);
+        ctx.drawImage(this.dinoCharacter, listaFrames[1].x1, listaFrames[1].y1, width, height, 0, 0, width, height);
         document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code)})
     },
     methods: {
