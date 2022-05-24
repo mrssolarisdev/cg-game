@@ -182,7 +182,7 @@ import dino from "../assets/img/dino_sprite.png";
                 this.bgStates.posX += this.gameCanvas.width
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
             }
-            //this.renderDino(1)
+            this.renderDino(2)
         },
         renderDino(dinoIndex) {
             dinoIndex -= 1
@@ -190,17 +190,15 @@ import dino from "../assets/img/dino_sprite.png";
             this.dinoDimensions.currentDinoIndex = dinoIndex
             // Se forem as ultimas 6 imagens, o padding pode diminuir um pouco pra melhorar o corte
             // as 4 primeiras imagens são em idle, as outras são de corrida
-            for (let i = 0; i < 1; i++) {
-                for (let j = 0; j < this.dinoDimensions.columnCount; j++) {
-                    let x1 = this.dinoDimensions.leftDinoPadding + (this.dinoDimensions.dinoWidth * j) + (this.dinoDimensions.leftDinoPadding * j)
-                    let y1 = this.dinoDimensions.topDinoPadding + (this.dinoDimensions.dinoHeight * i)
-                    listaFrames[i*this.dinoDimensions.columnCount + j] = {x1, y1}
-                }
+            // Só tem um for pq o sprite so tem uma linha
+            for (let j = 0; j < this.dinoDimensions.columnCount; j++) {
+                let x1 = this.dinoDimensions.leftDinoPadding + (this.dinoDimensions.dinoWidth * j) + (this.dinoDimensions.leftDinoPadding * j)
+                let y1 = this.dinoDimensions.topDinoPadding + (this.dinoDimensions.dinoHeight * 0)
+                listaFrames[0 * this.dinoDimensions.columnCount + j] = {x1, y1}
             }
             this.dinoDimensions.currentDino = listaFrames[this.dinoDimensions.currentDinoIndex]
             // ir incrementando o indexAtual a cada quadro
             let ctx = this.gameCanvas.getContext('2d')
-            //ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
             /* 
                 imagem a ser desenhada, 
                 posicao em x do começo do corte da imagem
