@@ -82,27 +82,19 @@ import dino from "../assets/img/dino_sprite.png";
         this.gameCanvas = document.getElementById('myCanvas')
         // Há 10 dinossauros, 20 altura, 84 largura
         let listaFrames = []
-        let width = 85
-        let height = 97
-        let qtdColunas = 10
-        let paddingTop = 21
-        let paddingLeft = 43.5
         let imgAtual = null
         let indexAtual = 4
         // Se forem as ultimas 6 imagens, o padding pode diminuir um pouco pra melhorar o corte
         // as 4 primeiras imagens são em idle, as outras são de corrida
-        console.log('t', this.dinoCharacterData.dimensions.leftDinoPadding)
         for (let i = 0; i < 1; i++) {
-            for (let j = 0; j < qtdColunas; j++) {
-                let x1 = paddingLeft+(width*j)+(paddingLeft*j)
-                let y1 = paddingTop+(height*i)
-                listaFrames[i*qtdColunas+j] = {x1, y1}
+            for (let j = 0; j < this.dinoDimensions.columnCount; j++) {
+                let x1 = this.dinoDimensions.leftDinoPadding + (this.dinoDimensions.dinoWidth * j) + (this.dinoDimensions.leftDinoPadding * j)
+                let y1 = this.dinoDimensions.topDinoPadding + (this.dinoDimensions.dinoHeight * i)
+                listaFrames[i*this.dinoDimensions.columnCount + j] = {x1, y1}
             }
-            console.log(listaFrames)
         }
         imgAtual = listaFrames[indexAtual]
         // ir incrementando o indexAtual a cada quadro
-        console.log('atual',imgAtual)
         let ctx = this.gameCanvas.getContext('2d')
 
         ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
@@ -115,8 +107,7 @@ import dino from "../assets/img/dino_sprite.png";
         // posicao y da imagem resultado no canvas
         // largura da imagem
         // altura da imagem
-        console.log(this.gameCanvas)
-        ctx.drawImage(this.dinoCharacter, imgAtual.x1, imgAtual.y1, width, height, 0, 800, width, height);
+        ctx.drawImage(this.dinoCharacter, imgAtual.x1, imgAtual.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.columnCount.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.columnCount.dinoHeight);
         document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code)})
     },
     methods: {
