@@ -70,7 +70,7 @@ import dino from "../assets/img/dino_sprite.png";
     },
     created (){
         // Solicita que o navegador execute essa função assim que possível, mas antes da próxima renderização de tela.
-        //window.requestAnimationFrame(this.loop)
+        window.requestAnimationFrame(this.loop)
     },
     mounted() {
         this.dinoCharacter = new Image()
@@ -80,33 +80,6 @@ import dino from "../assets/img/dino_sprite.png";
         this.gameBackground = new Image()
         this.gameBackground.src = gameBg
         this.gameCanvas = document.getElementById('myCanvas')
-        let listaFrames = []
-        this.dinoDimensions.currentDinoIndex = 4
-        // Se forem as ultimas 6 imagens, o padding pode diminuir um pouco pra melhorar o corte
-        // as 4 primeiras imagens são em idle, as outras são de corrida
-        for (let i = 0; i < 1; i++) {
-            for (let j = 0; j < this.dinoDimensions.columnCount; j++) {
-                let x1 = this.dinoDimensions.leftDinoPadding + (this.dinoDimensions.dinoWidth * j) + (this.dinoDimensions.leftDinoPadding * j)
-                let y1 = this.dinoDimensions.topDinoPadding + (this.dinoDimensions.dinoHeight * i)
-                listaFrames[i*this.dinoDimensions.columnCount + j] = {x1, y1}
-            }
-        }
-        this.dinoDimensions.currentDino = listaFrames[this.dinoDimensions.currentDinoIndex]
-        // ir incrementando o indexAtual a cada quadro
-        let ctx = this.gameCanvas.getContext('2d')
-
-        ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
-        // imagem a ser desenhada, 
-        // posicao em x do começo do corte da imagem
-        // posicao em y do começo do corte da imagem
-        // largura em x do corte na imagem
-        // largura em y do corte na imagem
-        // posicao x da imagem resultado no canvas
-        // posicao y da imagem resultado no canvas
-        // largura da imagem
-        // altura da imagem
-        console.log(this.dinoCharacter, this.dinoDimensions.currentDino.x1, this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight)
-        ctx.drawImage(this.dinoCharacter, this.dinoDimensions.currentDino.x1, this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight);
         document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code)})
     },
     methods: {
@@ -209,6 +182,38 @@ import dino from "../assets/img/dino_sprite.png";
                 this.bgStates.posX += this.gameCanvas.width
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
             }
+        },
+        renderDino(dinoIndex) {
+            dinoIndex -= 1
+            let listaFrames = []
+            this.dinoDimensions.currentDinoIndex = dinoIndex
+            // Se forem as ultimas 6 imagens, o padding pode diminuir um pouco pra melhorar o corte
+            // as 4 primeiras imagens são em idle, as outras são de corrida
+            for (let i = 0; i < 1; i++) {
+                for (let j = 0; j < this.dinoDimensions.columnCount; j++) {
+                    let x1 = this.dinoDimensions.leftDinoPadding + (this.dinoDimensions.dinoWidth * j) + (this.dinoDimensions.leftDinoPadding * j)
+                    let y1 = this.dinoDimensions.topDinoPadding + (this.dinoDimensions.dinoHeight * i)
+                    listaFrames[i*this.dinoDimensions.columnCount + j] = {x1, y1}
+                }
+            }
+            this.dinoDimensions.currentDino = listaFrames[this.dinoDimensions.currentDinoIndex]
+            // ir incrementando o indexAtual a cada quadro
+            let ctx = this.gameCanvas.getContext('2d')
+            //ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
+            /* 
+                imagem a ser desenhada, 
+                posicao em x do começo do corte da imagem
+                posicao em y do começo do corte da imagem
+                largura em x do corte na imagem
+                largura em y do corte na imagem
+                posicao x da imagem resultado no canvas
+                posicao y da imagem resultado no canvas
+                largura da imagem
+                altura da imagem
+            */
+            console.log(this.dinoCharacter, this.dinoDimensions.currentDino.x1, this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight)
+            ctx.drawImage(this.dinoCharacter, this.dinoDimensions.currentDino.x1, this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight);
+            
         },
         clearMovementsSet() {
             this.movements = {...this.movements, up: null, down: null, left: null, right: null, special: null}
