@@ -174,7 +174,7 @@ import dino from "../assets/img/dino_sprite.png";
             obs: a função clearRect limparia somente o que está dentro da area do canvas, o que deixa de ser verdade quando a imagem
             sai dele.
             */
-            //ctx.drawImage(this.dinoCharacter, 0, 0, 50, 50);
+            ctx.drawImage(this.gameBackground, this.bgStates.posX, 0, this.gameCanvas.width, this.gameCanvas.height);
             if(this.bgStates.posX < 0) {
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
             }
@@ -182,6 +182,7 @@ import dino from "../assets/img/dino_sprite.png";
                 this.bgStates.posX += this.gameCanvas.width
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
             }
+            //this.renderDino(1)
         },
         renderDino(dinoIndex) {
             dinoIndex -= 1
