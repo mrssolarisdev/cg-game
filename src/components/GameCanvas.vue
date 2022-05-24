@@ -51,13 +51,19 @@ import dino from "../assets/img/dino_sprite.png";
                 y: 134, // Altura do sprite.
                 columnCount: 10, // Quantidade de dinossauros do sprite.
                 topDinoPadding: 21, // Padding entre o topo da imagem e o começo da cabeça do dinossauro.
-                leftDinoPadding: 43.5, // 43.5 de padding entre cada dinossauro.
+                leftDinoPadding: 44, // 43.5 de padding entre cada dinossauro.
                 currentDino: null, // Dinossauro atual dentre os possíveis dinossauros.
-                currentDinoIndex: null, // Index atual representando o dinossauro da iamgem.
+                currentDinoIndex: 3, // Index atual representando o dinossauro da iamgem.
                 dinoWidth: 85, // Largura do dinossauro, o quão gordinho ele é.
                 dinoHeight: 97, // Altura do dinossauro. 
+                endIdleStateIndex: 3, // Índice do último sprite da animação de iddle.
+                endRunningStateIndex: 9, // Índice do último sprite da animação de corrida.
+                lastDinoPosition: null
             }
-        }
+        },
+        shoudDinoMoveItself: false,
+        crt: "",
+        tes: false
     }),
     computed: {
         getCanvasDimensions() {
@@ -80,7 +86,7 @@ import dino from "../assets/img/dino_sprite.png";
         this.gameBackground = new Image()
         this.gameBackground.src = gameBg
         this.gameCanvas = document.getElementById('myCanvas')
-        document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code)})
+        document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code);})
     },
     methods: {
         /* Função gameloop. Recebe uma timestamp através da função de requisição de frame do DOM, executada na criação do componente GameCanvas.
@@ -89,7 +95,6 @@ import dino from "../assets/img/dino_sprite.png";
         a rodando novamente para o próximo frame solicitado ao navegador. */
         loop(timestamp) {
             let elapsedTime = timestamp - this.lastRender
-            //console.log('loop', timestamp)
             this.handleEvents()
             this.update(elapsedTime)
             this.render()
@@ -133,7 +138,6 @@ import dino from "../assets/img/dino_sprite.png";
                     this.movements.down = true
                 }
             }
-            this.pressedKeys.clear()
         },
         update(){
             /* Essas checagens foram feitas aqui para evitar realizar a alteração do estado do dinossauro no handleEvents, já que a única responsabilidade que esse
@@ -150,17 +154,25 @@ import dino from "../assets/img/dino_sprite.png";
             //     this.bgStates.posY += this.bgStates.velY
             //     this.movements.down = false
             // }
-            if (this.movements.left) {
-                this.bgStates.posX += this.bgStates.velX
-                this.movements.left = false
-            }
+            // if (this.movements.left) {
+            //     this.bgStates.posX += this.bgStates.velX
+            //     this.movements.left = false
+            // }
             if (this.movements.right) {
+                // Por enquanto ele só vai se mover para a direita. Essa flag indica para a função render que o dinossauro pode animar.
+                this.shoudDinoMoveItself = true
+                this.crt = "move"
+                console.log(this.crt)
                 // Movimento é invertido para que o background se mova para trás e dê a sensaçao de movimento.
                 this.bgStates.posX -= this.bgStates.velX
                 // Desliga o movimento para a direita uma vez que a movimentação já foi feita. Se a tratativa não fosse feita, o personagem iria para a direita pra sempre.
                 this.movements.right = false
             }
-            //console.log('update', timestamp, this.bgStates.posX, this.bgStates.posY)
+            if(this.pressedKeys.size <= 0) {
+                console.log(this.pressedKeys)
+                this.crt = "iddle"
+            }
+            this.pressedKeys.clear()
         },
         render() {
             let ctx = this.gameCanvas.getContext('2d')
@@ -182,12 +194,28 @@ import dino from "../assets/img/dino_sprite.png";
                 this.bgStates.posX += this.gameCanvas.width
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
             }
-            this.renderDino(2)
+            this.renderDino(this.crt)
         },
-        renderDino(dinoIndex) {
-            dinoIndex -= 1
+        renderDino(mode = "iddle") {
             let listaFrames = []
-            this.dinoDimensions.currentDinoIndex = dinoIndex
+
+            if (this.shoudDinoMoveItself) {
+                this.dinoDimensions.currentDinoIndex++
+                this.shoudDinoMoveItself = false
+            }
+            if (this.dinoDimensions.currentDinoIndex >= this.dinoDimensions.endRunningStateIndex && mode == "move") {
+                // Volta pra um index anterior ao de onde se deve começar a animação de corrida.
+                this.dinoDimensions.currentDinoIndex = 3
+            }
+            if (this.dinoDimensions.currentDinoIndex >= this.dinoDimensions.endIdleStateIndex && mode == "iddle") {
+                // Volta pra um index anterior ao de onde se deve começar a animação de iddle.
+                this.dinoDimensions.currentDinoIndex = 0
+            }
+            // console.log('last', this.dinoDimensions.currentDinoIndex)
+            // if (this.dinoDimensions.lastDinoPosition != this.bgStates.posX) {
+            //     console.log(`diferente`)
+            // }
+            // this.dinoDimensions.currentDinoIndex = dinoIndex
             // Se forem as ultimas 6 imagens, o padding pode diminuir um pouco pra melhorar o corte
             // as 4 primeiras imagens são em idle, as outras são de corrida
             // Só tem um for pq o sprite so tem uma linha
@@ -197,6 +225,7 @@ import dino from "../assets/img/dino_sprite.png";
                 listaFrames[0 * this.dinoDimensions.columnCount + j] = {x1, y1}
             }
             this.dinoDimensions.currentDino = listaFrames[this.dinoDimensions.currentDinoIndex]
+            //console.log('rrr', this.dinoDimensions.currentDinoIndex)
             // ir incrementando o indexAtual a cada quadro
             let ctx = this.gameCanvas.getContext('2d')
             /* 
@@ -210,10 +239,10 @@ import dino from "../assets/img/dino_sprite.png";
                 largura da imagem
                 altura da imagem
             */
-            console.log(this.dinoCharacter, this.dinoDimensions.currentDino.x1, this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight)
+            //console.log(this.dinoCharacter, this.dinoDimensions.currentDino.x1, this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight)
             ctx.drawImage(this.dinoCharacter, this.dinoDimensions.currentDino.x1, this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight);
-            
         },
+        
         clearMovementsSet() {
             this.movements = {...this.movements, up: null, down: null, left: null, right: null, special: null}
         },
