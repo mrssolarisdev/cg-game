@@ -80,10 +80,8 @@ import dino from "../assets/img/dino_sprite.png";
         this.gameBackground = new Image()
         this.gameBackground.src = gameBg
         this.gameCanvas = document.getElementById('myCanvas')
-        // Há 10 dinossauros, 20 altura, 84 largura
         let listaFrames = []
-        let imgAtual = null
-        let indexAtual = 4
+        this.dinoDimensions.currentDinoIndex = 4
         // Se forem as ultimas 6 imagens, o padding pode diminuir um pouco pra melhorar o corte
         // as 4 primeiras imagens são em idle, as outras são de corrida
         for (let i = 0; i < 1; i++) {
@@ -93,7 +91,7 @@ import dino from "../assets/img/dino_sprite.png";
                 listaFrames[i*this.dinoDimensions.columnCount + j] = {x1, y1}
             }
         }
-        imgAtual = listaFrames[indexAtual]
+        this.dinoDimensions.currentDino = listaFrames[this.dinoDimensions.currentDinoIndex]
         // ir incrementando o indexAtual a cada quadro
         let ctx = this.gameCanvas.getContext('2d')
 
@@ -107,7 +105,8 @@ import dino from "../assets/img/dino_sprite.png";
         // posicao y da imagem resultado no canvas
         // largura da imagem
         // altura da imagem
-        ctx.drawImage(this.dinoCharacter, imgAtual.x1, imgAtual.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.columnCount.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.columnCount.dinoHeight);
+        console.log(this.dinoCharacter, this.dinoDimensions.currentDino.x1, this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight)
+        ctx.drawImage(this.dinoCharacter, this.dinoDimensions.currentDino.x1, this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight, 0, 800, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight);
         document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code)})
     },
     methods: {
