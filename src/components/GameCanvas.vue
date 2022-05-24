@@ -47,15 +47,25 @@ import dino from "../assets/img/dino_sprite.png";
             dinoCharacter: null,
             sprite: dino,
             dimensions: {
-                x: 1350,
-                y: 134,
-                spaceBetweenDinos: 48 // 48 pixels entre cada um
+                x: 1350, // Largura do sprite.
+                y: 134, // Altura do sprite.
+                columnCount: 10, // Quantidade de dinossauros do sprite.
+                topDinoPadding: 21, // Padding entre o topo da imagem e o começo da cabeça do dinossauro.
+                leftDinoPadding: 43.5, // 43.5 de padding entre cada dinossauro.
+                currentDino: null, // Dinossauro atual dentre os possíveis dinossauros.
+                currentDinoIndex: null, // Index atual representando o dinossauro da iamgem.
+                dinoWidth: 85, // Largura do dinossauro, o quão gordinho ele é.
+                dinoHeight: 97, // Altura do dinossauro. 
             }
         }
     }),
     computed: {
         getCanvasDimensions() {
-            return {width: (window.innerWidth - 370), height: (window.innerHeight + 10) }
+            return {width: 1750, height: 900 }
+        },
+        // Fiz essa computed pra não precisar escrever tanto e deixar o código menos poluido. Mas retorna o mesmo dado.
+        dinoDimensions() {
+            return this.dinoCharacterData.dimensions
         }
     },
     created (){
@@ -72,23 +82,29 @@ import dino from "../assets/img/dino_sprite.png";
         this.gameCanvas = document.getElementById('myCanvas')
         // Há 10 dinossauros, 20 altura, 84 largura
         let listaFrames = []
-        let width = 84
+        let width = 85
         let height = 97
         let qtdColunas = 10
         let paddingTop = 21
-        let paddingLeft = 48
+        let paddingLeft = 43.5
+        let imgAtual = null
+        let indexAtual = 4
+        // Se forem as ultimas 6 imagens, o padding pode diminuir um pouco pra melhorar o corte
+        // as 4 primeiras imagens são em idle, as outras são de corrida
+        console.log('t', this.dinoCharacterData.dimensions.leftDinoPadding)
         for (let i = 0; i < 1; i++) {
             for (let j = 0; j < qtdColunas; j++) {
-                console.log('rodou')
-                let x1 = paddingLeft+(width*j)
+                let x1 = paddingLeft+(width*j)+(paddingLeft*j)
                 let y1 = paddingTop+(height*i)
-                // let x2 = x1+width
-                // let y2 = y1+height
                 listaFrames[i*qtdColunas+j] = {x1, y1}
             }
+            console.log(listaFrames)
         }
-        console.log(listaFrames[0])
+        imgAtual = listaFrames[indexAtual]
+        // ir incrementando o indexAtual a cada quadro
+        console.log('atual',imgAtual)
         let ctx = this.gameCanvas.getContext('2d')
+
         ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
         // imagem a ser desenhada, 
         // posicao em x do começo do corte da imagem
@@ -99,7 +115,8 @@ import dino from "../assets/img/dino_sprite.png";
         // posicao y da imagem resultado no canvas
         // largura da imagem
         // altura da imagem
-        ctx.drawImage(this.dinoCharacter, listaFrames[1].x1, listaFrames[1].y1, width, height, 0, 0, width, height);
+        console.log(this.gameCanvas)
+        ctx.drawImage(this.dinoCharacter, imgAtual.x1, imgAtual.y1, width, height, 0, 800, width, height);
         document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code)})
     },
     methods: {
