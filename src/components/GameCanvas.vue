@@ -40,12 +40,14 @@ import dino from "../assets/img/dino_sprite.png";
             down: false,
             left: false,
             right: false,
+            none: false,
             special: false
         },
         dinoCharacter: null,
         dinoCharacterData: {
             dinoCharacter: null,
             sprite: dino,
+            frameCounter: 0,
             dimensions: {
                 x: 1350, // Largura do sprite.
                 y: 134, // Altura do sprite.
@@ -53,12 +55,13 @@ import dino from "../assets/img/dino_sprite.png";
                 topDinoPadding: 21, // Padding entre o topo da imagem e o começo da cabeça do dinossauro.
                 leftDinoPadding: 44, // 43.5 de padding entre cada dinossauro.
                 currentDino: null, // Dinossauro atual dentre os possíveis dinossauros.
+                lastMode: "iddle",
                 currentDinoIndex: 3, // Index atual representando o dinossauro da iamgem.
                 dinoWidth: 85, // Largura do dinossauro, o quão gordinho ele é.
                 dinoHeight: 97, // Altura do dinossauro. 
                 endIdleStateIndex: 3, // Índice do último sprite da animação de iddle.
                 endRunningStateIndex: 9, // Índice do último sprite da animação de corrida.
-                lastDinoPosition: null
+                lastDinoPosition: null,
             }
         },
         shoudDinoMoveItself: false,
@@ -95,13 +98,13 @@ import dino from "../assets/img/dino_sprite.png";
         a rodando novamente para o próximo frame solicitado ao navegador. */
         loop(timestamp) {
             let elapsedTime = timestamp - this.lastRender
-            this.handleEvents()
+            this.handleEvents(elapsedTime)
             this.update(elapsedTime)
             this.render()
             this.lastRender = timestamp
             window.requestAnimationFrame(this.loop)
         },
-        handleEvents() {
+        handleEvents(elapsedTime) {
             if(this.isItPressed('w') || this.isItPressed('ArrowUp') | this.isItPressed('8')) {
                 this.movements.up = true
                 if(this.isItPressed('a') || this.isItPressed('ArrowLeft') | this.isItPressed('4')) {
@@ -138,47 +141,47 @@ import dino from "../assets/img/dino_sprite.png";
                     this.movements.down = true
                 }
             }
+            else if (this.pressedKeys.size <= 0) {
+                this.movements.none = true
+                console.log(elapsedTime)
+            }
+            this.pressedKeys.clear()
         },
         update(){
+            this.movements.right = true
+            this.crt = "none"
+            this.shoudDinoMoveItself = false
             /* Essas checagens foram feitas aqui para evitar realizar a alteração do estado do dinossauro no handleEvents, já que a única responsabilidade que esse
             método deve ter é atualizar as estruturas responsáveis por ditar que teclas estão sendo pressionadas no momento, nada mais.
             Foram usadas estruturas if ao invés de else if para que se fosse possível realizar mais de uma movimentação simultâneamente.*/
-
+            
             // TODO: Na versão final esses updates de posicionamento vão ser responsáveis por mover o cenário (não o personagem) e por mudar os sprites no momento.
             if (this.movements.up) {
                 this.bgStates.posY -= this.bgStates.velY
-                this.movements.up = false
             }
-            // TODO: aplicar ou não aplicar movimentação pra baixo a depender da mecânica escolhida.
-            // if (this.movements.down) {
-            //     this.bgStates.posY += this.bgStates.velY
-            //     this.movements.down = false
-            // }
-            // if (this.movements.left) {
-            //     this.bgStates.posX += this.bgStates.velX
-            //     this.movements.left = false
-            // }
             if (this.movements.right) {
                 // Por enquanto ele só vai se mover para a direita. Essa flag indica para a função render que o dinossauro pode animar.
                 this.shoudDinoMoveItself = true
                 this.crt = "move"
-                console.log(this.crt)
                 // Movimento é invertido para que o background se mova para trás e dê a sensaçao de movimento.
                 this.bgStates.posX -= this.bgStates.velX
                 // Desliga o movimento para a direita uma vez que a movimentação já foi feita. Se a tratativa não fosse feita, o personagem iria para a direita pra sempre.
-                this.movements.right = false
             }
-            if(this.pressedKeys.size <= 0) {
-                console.log(this.pressedKeys)
-                this.crt = "iddle"
+            if (!this.movements.up && !this.movements.right) {
+                this.shoudDinoMoveItself = true
+                this.crt = "iddle"  
+                console.log('iddle')
             }
-            this.pressedKeys.clear()
+            console.log('direita', this.movements.right)
+            // this.movements.right = false
+            //this.clearMovementsSet()
         },
         render() {
             let ctx = this.gameCanvas.getContext('2d')
             ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
             // Impede a imagem de sofer smoothing pelo mecanismo de renderização do browser. Melhora a nitidez.
             ctx.imageSmoothingEnabled = false;
+            this.dinoCharacterData.frameCounter++
             /* Colocar uma nova imagem logo depois da outra ao invés de retira-la do canvas antes de criar outra ou somente
             mudar seus atributos de posição não vai criar uma bagunça de memória, uma vez que o canvas não guarda a referência
             para a imagem colocada nele como aconteceria com qualquer outro elemento do DOM. Uma vez que a imagem é desenhada no 
@@ -195,13 +198,32 @@ import dino from "../assets/img/dino_sprite.png";
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
             }
             this.renderDino(this.crt)
+            // Renderiza os inimigos que virerem depois, por cima.
         },
         renderDino(mode = "iddle") {
-            let listaFrames = []
+            if(this.dinoCharacterData.lastMode != mode) {
+                this.dinoCharacterData.lastMode = mode
+                if(mode == "iddle") {
+                    this.dinoDimensions.currentDinoIndex = 0
+                }
+                else if(mode == "move") {
+                    this.dinoDimensions.currentDinoIndex = 3
+                }
+            }
+            let spriteInterval = 0
+            let listaFrames = []    
 
-            if (this.shoudDinoMoveItself) {
+            switch (mode) {
+                case "move":
+                    spriteInterval = 20
+                    break
+                case "iddle":
+                    spriteInterval = 10
+            }
+            if (this.shoudDinoMoveItself && this.dinoCharacterData.frameCounter > spriteInterval) {
                 this.dinoDimensions.currentDinoIndex++
                 this.shoudDinoMoveItself = false
+                this.dinoCharacterData.frameCounter = 1
             }
             if (this.dinoDimensions.currentDinoIndex >= this.dinoDimensions.endRunningStateIndex && mode == "move") {
                 // Volta pra um index anterior ao de onde se deve começar a animação de corrida.
@@ -244,7 +266,7 @@ import dino from "../assets/img/dino_sprite.png";
         },
         
         clearMovementsSet() {
-            this.movements = {...this.movements, up: null, down: null, left: null, right: null, special: null}
+            this.movements = {up: false, down: false, left: false, right: false, special: false}
         },
         isItPressed(key) {
             return this.pressedKeys.has(key)
