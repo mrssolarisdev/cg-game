@@ -90,6 +90,7 @@ import dino from "../assets/img/dino_sprite.png";
         this.gameBackground.src = gameBg
         this.gameCanvas = document.getElementById('myCanvas')
         document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code);})
+        document.addEventListener('keyup', e => {e.preventDefault(); this.pressedKeys.delete(e.code);})
     },
     methods: {
         /* Função gameloop. Recebe uma timestamp através da função de requisição de frame do DOM, executada na criação do componente GameCanvas.
@@ -145,12 +146,11 @@ import dino from "../assets/img/dino_sprite.png";
                 this.movements.none = true
                 console.log(elapsedTime)
             }
-            this.pressedKeys.clear()
         },
         update(){
-            this.movements.right = true
-            this.crt = "none"
-            this.shoudDinoMoveItself = false
+            // this.movements.right = true
+            // this.crt = "none"
+            // this.shoudDinoMoveItself = false
             /* Essas checagens foram feitas aqui para evitar realizar a alteração do estado do dinossauro no handleEvents, já que a única responsabilidade que esse
             método deve ter é atualizar as estruturas responsáveis por ditar que teclas estão sendo pressionadas no momento, nada mais.
             Foram usadas estruturas if ao invés de else if para que se fosse possível realizar mais de uma movimentação simultâneamente.*/
@@ -173,8 +173,8 @@ import dino from "../assets/img/dino_sprite.png";
                 console.log('iddle')
             }
             console.log('direita', this.movements.right)
-            // this.movements.right = false
-            //this.clearMovementsSet()
+            this.movements.right = false
+            this.clearMovementsSet()
         },
         render() {
             let ctx = this.gameCanvas.getContext('2d')
