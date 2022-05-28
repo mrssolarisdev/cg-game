@@ -207,7 +207,7 @@ import dino from "../assets/img/dino_sprite.png";
                     this.dinoDimensions.currentDinoIndex = 0
                 }
                 else if(mode == "move") {
-                    this.dinoDimensions.currentDinoIndex = 3
+                    this.dinoDimensions.currentDinoIndex = 4
                 }
             }
             let spriteInterval = 0
@@ -227,7 +227,7 @@ import dino from "../assets/img/dino_sprite.png";
             }
             if (this.dinoDimensions.currentDinoIndex >= this.dinoDimensions.endRunningStateIndex && mode == "move") {
                 // Volta pra um index anterior ao de onde se deve começar a animação de corrida.
-                this.dinoDimensions.currentDinoIndex = 3
+                this.dinoDimensions.currentDinoIndex = 4
             }
             if (this.dinoDimensions.currentDinoIndex >= this.dinoDimensions.endIdleStateIndex && mode == "iddle") {
                 // Volta pra um index anterior ao de onde se deve começar a animação de iddle.
