@@ -198,7 +198,7 @@ import dino from "../assets/img/dino_sprite.png";
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
             }
             this.renderDino(this.crt)
-            // Renderiza os inimigos que virerem depois, por cima.
+            // Renderiza os inimigos que virerem depois, por cima
         },
         renderDino(mode = "iddle") {
             if(this.dinoCharacterData.lastMode != mode) {
