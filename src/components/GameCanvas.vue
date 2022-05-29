@@ -8,6 +8,7 @@
 import gameBg from "../assets/img/game_bg.webp";
 import dino from "../assets/img/dino_sprite.png";
 import bird from "../assets/img/bird_cut.png";
+import rock from "../assets/img/rock.png";
 
   export default {
     name: 'GameCanvas',
@@ -26,6 +27,7 @@ import bird from "../assets/img/bird_cut.png";
     data: () => ({
         lastRender: null,
         gameCanvas: null,
+        gameCanvasContext: null,
         gameBackground: null,
         pressedKeys: new Set(),
         pressedKeyEvent: null,
@@ -68,13 +70,27 @@ import bird from "../assets/img/bird_cut.png";
         obstacles: {
             birdy: {
                 image: bird,
+                posX: 0,
+                posY: 0,
+                width: 150,
+                height: 378,
+                isRendered: false,
+            },
+            rock: {
+                image: rock,
+                posX: 0,
+                posY: 0,
                 width: 505,
                 height: 378,
+                currentWidth: 0,
+                currentHeight: 0,
+                isRendered: false,
+                randomPosX: 0
             }
         },
         shoudDinoMoveItself: false,
         crtDinoState: "",
-        tes: false
+        bgResetOcurred: false
     }),
     computed: {
         getCanvasDimensions() {
@@ -97,8 +113,11 @@ import bird from "../assets/img/bird_cut.png";
         this.gameBackground = new Image()
         this.gameBackground.src = gameBg
         this.gameCanvas = document.getElementById('myCanvas')
+        this.gameCanvasContext = this.gameCanvas.getContext('2d')
         document.addEventListener('keydown', e => {e.preventDefault(); this.pressedKeys.add(e.code);})
         document.addEventListener('keyup', e => {e.preventDefault(); this.pressedKeys.delete(e.code);})
+        this.obstacles.birdy.posY = Math.round((this.gameCanvas.height - 305) * Math.random())
+        this.obstacles.rock.randomPosX = Math.round(this.obstacles.rock.width * Math.random())
     },
     methods: {
         /* Função gameloop. Recebe uma timestamp através da função de requisição de frame do DOM, executada na criação do componente GameCanvas.
@@ -108,12 +127,12 @@ import bird from "../assets/img/bird_cut.png";
         loop(timestamp) {
             let elapsedTime = timestamp - this.lastRender
             this.handleEvents(elapsedTime)
-            this.update(elapsedTime)
+            this.update()
             this.render()
             this.lastRender = timestamp
             window.requestAnimationFrame(this.loop)
         },
-        handleEvents(elapsedTime) {
+        handleEvents() {
             if(this.isItPressed('w') || this.isItPressed('ArrowUp') | this.isItPressed('8')) {
                 this.movements.up = true
                 if(this.isItPressed('a') || this.isItPressed('ArrowLeft') | this.isItPressed('4')) {
@@ -152,13 +171,9 @@ import bird from "../assets/img/bird_cut.png";
             }
             else if (this.pressedKeys.size <= 0) {
                 this.movements.none = true
-                console.log(elapsedTime)
             }
         },
         update(){
-            // this.movements.right = true
-            // this.crtDinoState = "none"
-            // this.shoudDinoMoveItself = false
             /* Essas checagens foram feitas aqui para evitar realizar a alteração do estado do dinossauro no handleEvents, já que a única responsabilidade que esse
             método deve ter é atualizar as estruturas responsáveis por ditar que teclas estão sendo pressionadas no momento, nada mais.
             Foram usadas estruturas if ao invés de else if para que se fosse possível realizar mais de uma movimentação simultâneamente.*/
@@ -187,6 +202,9 @@ import bird from "../assets/img/bird_cut.png";
             // Impede a imagem de sofer smoothing pelo mecanismo de renderização do browser. Melhora a nitidez.
             ctx.imageSmoothingEnabled = false;
             this.dinoCharacterData.frameCounter++
+            if (this.bgResetOcurred) {
+                this.bgResetOcurred = false
+            }
             /* Colocar uma nova imagem logo depois da outra ao invés de retira-la do canvas antes de criar outra ou somente
             mudar seus atributos de posição não vai criar uma bagunça de memória, uma vez que o canvas não guarda a referência
             para a imagem colocada nele como aconteceria com qualquer outro elemento do DOM. Uma vez que a imagem é desenhada no 
@@ -200,6 +218,7 @@ import bird from "../assets/img/bird_cut.png";
             }
             if (this.bgStates.posX + this.gameCanvas.width < 0) {
                 this.bgStates.posX += this.gameCanvas.width
+                this.bgResetOcurred = true
                 ctx.drawImage(this.gameBackground, this.bgStates.posX + this.gameCanvas.width, 0, this.gameCanvas.width, this.gameCanvas.height);
             }
             this.renderDino(this.crtDinoState)
@@ -265,7 +284,25 @@ import bird from "../assets/img/bird_cut.png";
         },
 
         renderObstacles(){
+            this.obstacles.birdy.posX = this.bgStates.posX + (this.gameCanvas.width - 10)
+            if (this.bgResetOcurred) {
+                this.obstacles.birdy.posY = Math.round((this.gameCanvas.height - 305) * Math.random())
+                console.log('y: ' , this.obstacles.birdy.posY)
+                this.obstacles.birdy.currentWidth = Math.round(this.obstacles.birdy.width * Math.random())
+                this.obstacles.rock.randomPosX = Math.round(this.obstacles.rock.width * Math.random())
+            }
+            this.gameCanvasContext.fillStyle = 'red'
+            this.gameCanvasContext.fillRect(this.obstacles.birdy.posX, this.obstacles.birdy.posY, 150, 80); 
 
+            this.obstacles.rock.posX = this.bgStates.posX + (this.gameCanvas.width - 10)
+            this.obstacles.rock.posY = 610
+            this.obstacles.rock.posX += this.obstacles.rock.randomPosX
+
+            this.gameCanvasContext.fillStyle = 'blue'
+            this.gameCanvasContext.fillRect(this.obstacles.rock.posX, this.obstacles.rock.posY, 150, 80); 
+
+            //console.log('aconteceu reset', this.obstacles.birdy.posX, this.bgStates.posX + (this.gameCanvas.width))
+            //this.gameCanvasContext.drawImage(this.obstacles.birdy.image, positionX, this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight, 0, 595, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight);
         },
         
         clearMovementsSet() {
