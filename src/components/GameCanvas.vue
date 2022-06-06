@@ -12,7 +12,8 @@ import heart from "../assets/img/heart.png";
 import star from "../assets/img/star.png";
 
 // Mixins - Os métodos nesses mixins podem ser usados referenciados usando o 'this' nesse componente, como se eles fossem seus (desde que sendo importados aqui).
-import { dinoMethods } from '@/mixins/dinoMethods.js'
+import { dinoData } from '@/mixins/dinoData.js'
+import { obstaclesData } from '@/mixins/obstaclesData.js'
 
 export default {
   name: 'GameCanvas',
@@ -28,7 +29,7 @@ export default {
       type: String
     }
   },
-  mixins: [dinoMethods],
+  mixins: [dinoData, obstaclesData],
   data: () => ({
       loopCount: 0,
       points: 0,
@@ -58,35 +59,6 @@ export default {
         none: false,
         special: false
       },
-      obstacles: {
-        birdy: {
-          image: null,
-          posX: 0,
-          posY: 0,
-          width: 75,
-          height: 75,
-          hitDino: false,
-          birdy: true
-        },
-        rock: {
-          image: null,
-          posX: 0,
-          posY: 0,
-          width: 100,
-          height: 75,
-          hitDino: false,
-          rock: true
-        },
-        star: {
-          image: null,
-          posX: 0,
-          posY: 0,
-          width: 60,
-          height: 55,
-          hitDino: false,
-          star: true
-        },
-      },
       heart: {
         image: null,
         posX: 25,
@@ -95,18 +67,12 @@ export default {
         height: 48,
         randomPosX: 0
       },
-      shoudDinoMoveItself: false,
-      crtDinoState: "",
       bgResetOcurred: false
   }),
   computed: {
       getCanvasDimensions() {
           return {width: 1750, height: 900 }
       },
-      // Fiz essa computed pra não precisar escrever tanto e deixar o código menos poluido. Mas retorna o mesmo dado.
-      dinoDimensions() {
-          return this.dinoCharacterData.dimensions
-      }
   },
   created (){
       // Solicita que o navegador execute essa função assim que possível, mas antes da próxima renderização de tela.
