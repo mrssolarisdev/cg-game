@@ -6,11 +6,13 @@
 
 <script>
 import gameBg from "../assets/img/game_bg.webp";
-import dino from "../assets/img/dino_sprite.png";
 import bird from "../assets/img/bird_cut.png";
 import rock from "../assets/img/rock.png";
 import heart from "../assets/img/heart.png";
 import star from "../assets/img/star.png";
+
+// Mixins - Os métodos nesses mixins podem ser usados referenciados usando o 'this' nesse componente, como se eles fossem seus (desde que sendo importados aqui).
+import { dinoMethods } from '@/mixins/dinoMethods.js'
 
 export default {
   name: 'GameCanvas',
@@ -26,6 +28,7 @@ export default {
       type: String
     }
   },
+  mixins: [dinoMethods],
   data: () => ({
       loopCount: 0,
       points: 0,
@@ -54,38 +57,6 @@ export default {
         right: false,
         none: false,
         special: false
-      },
-      dinoCharacter: null,
-      dinoCharacterData: {
-        dinoCharacter: null,
-        sprite: dino,
-        frameCounter: 0,
-        posX: 0,
-        posY: 0,
-        health: 3,
-        maxHealth: 3,
-        isDead: false,
-        isJumping: false,
-        accelerationY: 0,
-        jump: {
-          isJumping: false,
-          jumpFrame: 0
-        },
-        dimensions: {
-          x: 1350, // Largura do sprite.
-          y: 134, // Altura do sprite.
-          columnCount: 10, // Quantidade de dinossauros do sprite.
-          topDinoPadding: 21, // Padding entre o topo da imagem e o começo da cabeça do dinossauro.
-          leftDinoPadding: 44, // 43.5 de padding entre cada dinossauro.
-          currentDino: null, // Dinossauro atual dentre os possíveis dinossauros.
-          lastMode: "idle",
-          currentDinoIndex: 3, // Index atual representando o dinossauro da iamgem.
-          dinoWidth: 85, // Largura do dinossauro, o quão gordinho ele é.
-          dinoHeight: 97, // Altura do dinossauro. 
-          endIdleStateIndex: 3, // Índice do último sprite da animação de idle.
-          endRunningStateIndex: 9, // Índice do último sprite da animação de corrida.
-          lastDinoPosition: null,
-        }
       },
       obstacles: {
         birdy: {
@@ -164,8 +135,7 @@ export default {
       atualizados pela função anterior, update) e requestAnimationFrame, que, dentro da função loop é executada novamente, recebendo como callback a própria função loop,
       a rodando novamente para o próximo frame solicitado ao navegador. */
       loop(timestamp) {
-          let elapsedTime = timestamp - this.lastRender
-          this.handleEvents(elapsedTime)
+          this.handleEvents()
           this.update()
           this.render()
           this.lastRender = timestamp
