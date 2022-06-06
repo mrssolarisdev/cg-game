@@ -18,12 +18,12 @@ import { obstaclesData } from '@/mixins/obstaclesData.js'
 export default {
   name: 'GameCanvas',
   props: {
-    border: { // Borda do canvas
+    border: {// Borda do canvas
       required: false,
       default: '1px solid red',
       type: String
     },
-    backgroundColor: { // Cor de fundo do canvas
+    backgroundColor: {// Cor de fundo do canvas
       required: false,
       default: 'black',
       type: String
@@ -39,17 +39,19 @@ export default {
       gameCanvasContext: null, // Variavel que guarda o contexto do canvas
       gameBackground: null, // Variável que guarda a imagem que vamos usar como background do cenario
       pressedKeys: new Set(), // Set de pressed keys. É um set para não permitir repetição
-      bgStates: { 
+      pressedKeyEvent: null,
+      bgStates: {
         prevPosX: 0, // Posição X passada do background na tela
         prevPosY: 0, // Posição Y passada do background na tela
         posX: 0, // Posição X atual do background na tela
         posY: 0, // Posição X atual do background na tela
         velX: 15, // Velocidade em X com a qual o background se move
-        velY: 5, // Velocidade em Y com a qual o background se move
+        velY: 5, // Velocidade em Y com a qual o background se move  
         startingVelX: 15, // Velocidade inicial com a qual o background se move em X
-        startingVelY: 5, // Velocidade inicial com a qual o background se move em Y
+        startingVelY: 5,// Velocidade inicial com a qual o background se move em Y
+        size: 50
       },
-      movements: { // Objeto de movimentos. Quando uma tecla é pressionada, se for uma tecla das abaixo, alteraremos o valor correspondente a ela
+      movements: {// Objeto de movimentos. Quando uma tecla é pressionada, se for uma tecla das abaixo, alteraremos o valor correspondente a ela
         up: false,
         down: false,
         left: false,
@@ -57,7 +59,36 @@ export default {
         none: false,
         special: false
       },
-      heart: { // Dados das vidas que aparecem na tela
+    //   obstacles: {
+        // birdy: {
+        //   image: null,
+        //   posX: 0,
+        //   posY: 0,
+        //   width: 75,
+        //   height: 75,
+        //   hitDino: false,
+        //   birdy: true
+        // },
+        // rock: {
+        //   image: null,
+        //   posX: 0,
+        //   posY: 0,
+        //   width: 100,
+        //   height: 75,
+        //   hitDino: false,
+        //   rock: true
+        // },
+        // star: {
+        //   image: null,
+        //   posX: 0,
+        //   posY: 0,
+        //   width: 60,
+        //   height: 55,
+        //   hitDino: false,
+        //   star: true
+        // },
+    //   },
+      heart: {
         image: null,
         posX: 25,
         posY: 25,
@@ -65,7 +96,8 @@ export default {
         height: 48,
         randomPosX: 0
       },
-      bgResetOcurred: false // Variável que guarda a ocorrencia ou nao de um reset no background. Ou seja, se ocorreu uma passada de cenário.
+
+      bgResetOcurred: false
   }),
   computed: {
       getCanvasDimensions() {
@@ -77,14 +109,15 @@ export default {
       window.requestAnimationFrame(this.loop)
   },
   mounted() {
+    
     // Setando os elementos que precisam de imagens em suas configurações para renderizar
     this.setupImages()
-
     this.gameCanvas = document.getElementById('myCanvas')
     this.gameCanvasContext = this.gameCanvas.getContext('2d')
     document.addEventListener('keydown', e => { this.pressedKeys.add(e.code);})
-    document.addEventListener('keyup', e => { this.pressedKeys.delete (e.code);})
+    document.addEventListener('keyup', e => { this.pressedKeys.delete(e.code);})
     this.obstacles.birdy.posY = Math.round((this.gameCanvas.height - 305) * Math.random())
+    //this.setBirdyRandomHeight()
     this.resetObstacle(this.obstacles.star)
     this.resetObstacle(this.obstacles.rock)
     this.resetObstacle(this.obstacles.birdy)
@@ -417,6 +450,7 @@ export default {
 
       setBirdyRandomHeight() {
         this.obstacles.birdy.posY = Math.round((this.gameCanvas.height - 305) * Math.random())
+          console.log(this.obstacles.birdy.posY)
         // Impede que o passáro apareça alto demais ou baixo demais
         if(this.obstacles.birdy.posY > 450)
         {
