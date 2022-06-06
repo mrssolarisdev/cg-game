@@ -18,12 +18,12 @@ import { obstaclesData } from '@/mixins/obstaclesData.js'
 export default {
   name: 'GameCanvas',
   props: {
-    border: {
+    border: { // Borda do canvas
       required: false,
       default: '1px solid red',
       type: String
     },
-    backgroundColor: {
+    backgroundColor: { // Cor de fundo do canvas
       required: false,
       default: 'black',
       type: String
@@ -31,27 +31,25 @@ export default {
   },
   mixins: [dinoData, obstaclesData],
   data: () => ({
-      loopCount: 0,
-      points: 0,
-      floorLevel: 595,
-      lastRender: null,
-      gameCanvas: null,
-      gameCanvasContext: null,
-      gameBackground: null,
-      pressedKeys: new Set(),
-      pressedKeyEvent: null,
-      bgStates: {
-        prevPosX: 0,
-        prevPosY: 0,
-        posX: 0,
-        posY: 0,
-        velX: 15,
-        velY: 5,
-        startingVelX: 15,
-        startingVelY: 5,
-        size: 50
+      loopCount: 0, // Quantas iterações pelo gameloop nós já fizemos
+      points: 0, // Quantos pontos o jogador fez a cada passada completa pelo cenário
+      floorLevel: 595, // Posição Y da parte do background que representa o chão
+      lastRender: null, // Tempo da última renderização
+      gameCanvas: null, // Variavel que guarda o objeto canvas
+      gameCanvasContext: null, // Variavel que guarda o contexto do canvas
+      gameBackground: null, // Variável que guarda a imagem que vamos usar como background do cenario
+      pressedKeys: new Set(), // Set de pressed keys. É um set para não permitir repetição
+      bgStates: { 
+        prevPosX: 0, // Posição X passada do background na tela
+        prevPosY: 0, // Posição Y passada do background na tela
+        posX: 0, // Posição X atual do background na tela
+        posY: 0, // Posição X atual do background na tela
+        velX: 15, // Velocidade em X com a qual o background se move
+        velY: 5, // Velocidade em Y com a qual o background se move
+        startingVelX: 15, // Velocidade inicial com a qual o background se move em X
+        startingVelY: 5, // Velocidade inicial com a qual o background se move em Y
       },
-      movements: {
+      movements: { // Objeto de movimentos. Quando uma tecla é pressionada, se for uma tecla das abaixo, alteraremos o valor correspondente a ela
         up: false,
         down: false,
         left: false,
@@ -59,7 +57,7 @@ export default {
         none: false,
         special: false
       },
-      heart: {
+      heart: { // Dados das vidas que aparecem na tela
         image: null,
         posX: 25,
         posY: 25,
@@ -67,7 +65,7 @@ export default {
         height: 48,
         randomPosX: 0
       },
-      bgResetOcurred: false
+      bgResetOcurred: false // Variável que guarda a ocorrencia ou nao de um reset no background. Ou seja, se ocorreu uma passada de cenário.
   }),
   computed: {
       getCanvasDimensions() {
@@ -79,13 +77,14 @@ export default {
       window.requestAnimationFrame(this.loop)
   },
   mounted() {
+    // Setando os elementos que precisam de imagens em suas configurações para renderizar
     this.setupImages()
+
     this.gameCanvas = document.getElementById('myCanvas')
     this.gameCanvasContext = this.gameCanvas.getContext('2d')
     document.addEventListener('keydown', e => { this.pressedKeys.add(e.code);})
-    document.addEventListener('keyup', e => { this.pressedKeys.delete(e.code);})
+    document.addEventListener('keyup', e => { this.pressedKeys.delete (e.code);})
     this.obstacles.birdy.posY = Math.round((this.gameCanvas.height - 305) * Math.random())
-    //this.setBirdyRandomHeight()
     this.resetObstacle(this.obstacles.star)
     this.resetObstacle(this.obstacles.rock)
     this.resetObstacle(this.obstacles.birdy)
