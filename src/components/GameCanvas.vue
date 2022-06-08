@@ -124,6 +124,9 @@ export default {
           this.loopCount++
           window.requestAnimationFrame(this.loop)
       },
+
+      /* Função controladora de eventos. Se uma das nossas teclas de interesse é pressionada, colocamos ela no set (para que não se repita)
+      de teclas pressionadas*/
       handleEvents() {
           if(this.isItPressed('w') || this.isItPressed('ArrowUp') | this.isItPressed('8')) {
               this.movements.up = true
@@ -161,13 +164,17 @@ export default {
                   this.movements.down = true
               }
           }
+          // Se não tem teclas pressionadas, setamos a key de nenhum movimento para true.
           else if (this.pressedKeys.size <= 0) {
               this.movements.none = true
           }
       },
+      /* Método update. Ele, por sua vez, poderia rodar dois tipos de update baseado em uma condição.
+      Se o dinossauro estiver morto, ele vai rodaria um update específico. Senão, outro. Como o jogo não prosseguiu, 
+      o update só acontece se o dinossauro não estiver morto.
+      */
       update(){
-          if(this.dinoCharacterData.isDead) this.updateWhenDead()
-          else this.regularUpdate()
+          if (!this.dinoCharacterData.isDead) this.regularUpdate()
       },
 
       // Rotina de update para quando o jogador (dino) estiver vivo
@@ -175,8 +182,6 @@ export default {
         /* Essas checagens foram feitas aqui para evitar realizar a alteração do estado do dinossauro no handleEvents, já que a única responsabilidade que esse
           método deve ter é atualizar as estruturas responsáveis por ditar que teclas estão sendo pressionadas no momento, nada mais.
           Foram usadas estruturas if ao invés de else if para que se fosse possível realizar mais de uma movimentação simultâneamente.*/
-          
-          // TODO: Na versão final esses updates de posicionamento vão ser responsáveis por mover o cenário (não o personagem) e por mudar os sprites no momento.
           if (this.movements.up && this.dinoCharacterData.jump.isJumping == false) {
               this.dinoCharacterData.jump.isJumping = true
               this.shoudDinoMoveItself = true
@@ -194,35 +199,41 @@ export default {
               this.moveObstacle(this.obstacles.rock)
               this.moveObstacle(this.obstacles.star)
           }
+          /* Se o movimento não for pra cima nem para a direita, o dinossauro não se move (já que só permitimos esses movimentos).
+          Nesse caso, a animação dele vai ser a de iddle.
+          */
           if (!this.movements.up && !this.movements.right) {
               this.shoudDinoMoveItself = true
               this.crtDinoState = "idle"  
           }
-
+          // Se o background já saiu inteiro do canvas, uma mudança no cenário ocorreu. O jogador ganha um ponto por ter continuado vivo.
           if(this.bgStates.posX + this.gameCanvas.width < 0)
             this.points++
 
+          // Se o dinossauro está no estado de pulo, ativamos a rotina de pulo.
           if(this.dinoCharacterData.jump.isJumping == true) this.playerJump()
           
+          // Checando se houve colisão do dinossauro com os obstáculos.
           this.checkCollision(this.obstacles.birdy)
           this.checkCollision(this.obstacles.rock)
           this.checkCollision(this.obstacles.star)
 
+          // Checa se os obstaculos estão fora da tela e os coloca na próxima posição fora do canvas para que sejam vistos ao mover do cenário pelo jogador.
           this.checkObstaclePosition(this.obstacles.birdy)
           this.checkObstaclePosition(this.obstacles.rock)
           this.checkObstaclePosition(this.obstacles.star)
 
+          // Executa ajustes no posicionamento para previnir os objetos de se sobreporem.
           this.preventOverlappingObstacles()
 
+          // Atualiza a velocidade do jogo com base na quantidade de pontos.
           this.updateSpeed()
 
+          // Limpa o set de movimentos e deixa ele pronto para a próxima iteração.
           this.clearMovementsSet()
       },
 
-      updateWhenDead() {
-        // CODIGO DE UPDATE PARA QUANDO O DINO ESTIVER MORTO AQUI
-      },
-
+      // Método render normal. Executa o regularRender. Os métodos foram divididos para que se pudesse ter um segundo método render que rodaria quando o jogador morre.
       render() {
         this.regularRender()
         if(this.dinoCharacterData.isDead) this.renderWhenDead()
@@ -332,80 +343,6 @@ export default {
           this.dinoCharacterData.posY, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight)
       },
 
-      moveObstacle(obstacle) {
-        const xToMove = this.bgStates.prevPosX - this.bgStates.posX
-        obstacle.posX -= xToMove
-      },
-
-      checkObstaclePosition(obstacle) {
-        if(obstacle.posX < 0 - obstacle.width) {
-          this.resetObstacle(obstacle)
-        }
-      },
-
-      resetObstacle(obstacle) {
-        const canvasDim = this.getCanvasDimensions
-        const rand = Math.round(1000 * Math.random())
-        obstacle.posX = canvasDim.width + obstacle.posX + rand
-        console.log(canvasDim.width + obstacle.posX + rand)
-        obstacle.hitDino = false
-        if(obstacle.birdy)
-          this.setBirdyRandomHeight()
-      },
-
-      preventOverlappingObstacles() {
-        let minimumDiff = 250
-        // Impedir pássaro e pedra de aparecerem perto demais um do outro
-        if(this.obstacles.rock.posX > this.obstacles.birdy.posX) {
-          const diff = this.obstacles.rock.posX - this.obstacles.birdy.posX
-          if(diff < minimumDiff)
-          this.obstacles.rock.posX += minimumDiff - diff + (50*Math.random())
-        } else {
-          const diff = this.obstacles.birdy.posX - this.obstacles.rock.posX
-          if(diff < minimumDiff)
-          this.obstacles.birdy.posX += minimumDiff - diff + (50*Math.random())
-        }
-
-        minimumDiff = 100
-        // Impedir estrela de sobrepor com pedra
-        if(this.obstacles.star.posX > this.obstacles.rock.posX) {
-          const diff = this.obstacles.star.posX - this.obstacles.rock.posX
-          if(diff < minimumDiff)
-          this.obstacles.star.posX += minimumDiff - diff + (50*Math.random())
-        } else {
-          const diff = this.obstacles.rock.posX - this.obstacles.star.posX
-          if(diff < minimumDiff)
-          this.obstacles.rock.posX += minimumDiff - diff + (50*Math.random())
-        }
-
-      },
-
-      renderObstacles(){
-          this.gameCanvasContext.drawImage(
-            this.obstacles.birdy.image,
-            this.obstacles.birdy.posX,
-            this.obstacles.birdy.posY,
-            this.obstacles.birdy.width,
-            this.obstacles.birdy.height
-          )
-
-          this.gameCanvasContext.drawImage(
-            this.obstacles.rock.image,
-            this.obstacles.rock.posX,
-            this.obstacles.rock.posY,
-            this.obstacles.rock.width,
-            this.obstacles.rock.height
-          )
-
-          this.gameCanvasContext.drawImage(
-            this.obstacles.star.image,
-            this.obstacles.star.posX,
-            this.obstacles.star.posY,
-            this.obstacles.star.width,
-            this.obstacles.star.height
-          )
-      },
-
       renderHearts() {
         const dinoHealth = this.dinoCharacterData.health
         const heartPaddingX = 50
@@ -426,25 +363,6 @@ export default {
         const ctx = this.gameCanvasContext
         ctx.font = "bold 32px Roboto"
         ctx.fillText(textString, 25, 115);
-      },
-
-      resetObstacleHits() {
-        this.obstacles.rock.hitDino = false
-        this.obstacles.birdy.hitDino = false
-      },
-
-      setBirdyRandomHeight() {
-        this.obstacles.birdy.posY = Math.round((this.gameCanvas.height - 305) * Math.random())
-          console.log(this.obstacles.birdy.posY)
-        // Impede que o passáro apareça alto demais ou baixo demais
-        if(this.obstacles.birdy.posY > 450)
-        {
-          this.obstacles.birdy.posY = 450
-        }
-        else if(this.obstacles.birdy.posY < 500)
-        {
-          this.obstacles.birdy.posY = 500
-        }
       },
 
       updateBgPosition({moveX = 0, moveY = 0}) {
