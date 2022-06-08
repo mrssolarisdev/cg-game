@@ -1,7 +1,7 @@
 export const obstaclesData = {
     data() {
         return {
-            obstacles: {
+            obstacles: { // Dados dos obstaculos
                 birdy: {
                   image: null,
                   posX: 0,
@@ -34,6 +34,7 @@ export const obstaclesData = {
     },
 
     methods: {
+        // Move um obstáculo específico em X, guardando sua posição atual na variável de posição anterior.
         moveObstacle(obstacle) {
             const xToMove = this.bgStates.prevPosX - this.bgStates.posX
             obstacle.posX -= xToMove
@@ -46,11 +47,13 @@ export const obstaclesData = {
             }
         },
         
+        // Reseta o obstáculo especificado, movendo ele para uma posição específica ainda fora do canvas, onde o jogador não pode ver.
         resetObstacle(obstacle) {
             const canvasDim = this.getCanvasDimensions
             const rand = Math.round(1000 * Math.random())
             obstacle.posX = canvasDim.width + obstacle.posX + rand
             obstacle.hitDino = false
+            // Se o obstáculo é o pássaro, vamos também gerar uma posição aleatória em Y para ele.
             if(obstacle.birdy)
               this.setBirdyRandomHeight()
         },
@@ -82,6 +85,7 @@ export const obstaclesData = {
             }
         },
 
+        // Renderiza os obstáculos no canvas.
         renderObstacles(){
             this.gameCanvasContext.drawImage(
               this.obstacles.birdy.image,
@@ -108,14 +112,16 @@ export const obstaclesData = {
             )
         },
 
+        // Reseta a informação de que o dinossauro sofreu colisão com o pássaro e a pedra. Afinal, só eles dão dano.
         resetObstacleHits() {
             this.obstacles.rock.hitDino = false
             this.obstacles.birdy.hitDino = false
         },
 
+        /* Gera uma posição aleatória para o pássaro. Se a posição Y gerada é acima de 450 ou abaixo de 500, 
+        limitamos esse valor, para deixar ele no máximo ou mínimo possiveis, mas não fora do canvas. */
         setBirdyRandomHeight() {
             this.obstacles.birdy.posY = Math.round((this.gameCanvas.height - 305) * Math.random())
-              console.log(this.obstacles.birdy.posY)
             // Impede que o passáro apareça alto demais ou baixo demais
             if(this.obstacles.birdy.posY > 450)
             {
