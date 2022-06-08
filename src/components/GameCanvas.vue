@@ -169,6 +169,7 @@ export default {
               this.movements.none = true
           }
       },
+      
       /* Método update. Ele, por sua vez, poderia rodar dois tipos de update baseado em uma condição.
       Se o dinossauro estiver morto, ele vai rodaria um update específico. Senão, outro. Como o jogo não prosseguiu, 
       o update só acontece se o dinossauro não estiver morto.
@@ -239,6 +240,7 @@ export default {
         if(this.dinoCharacterData.isDead) this.renderWhenDead()
       },
 
+      // Método de renderização baseado nos dados atualizados do jogo. Só roda enquanto o dinossauro não estiver morto.
       regularRender() {
         let ctx = this.gameCanvas.getContext('2d')
           ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height)
@@ -274,6 +276,7 @@ export default {
           this.renderPoints(this.points)
       },
 
+      // Renderiza uma mensagem na tela se o dinossauro morreu.
       renderWhenDead() {
         const ctx = this.gameCanvasContext
         const textString = "You Lose!"
@@ -282,71 +285,13 @@ export default {
         ctx.fillText(textString, this.gameCanvas.width / 2 - textWidth / 2, this.gameCanvas.height / 2);
       },
 
-      renderDino(mode = "idle") {
-          if(this.dinoCharacterData.lastMode != mode) {
-              this.dinoCharacterData.lastMode = mode
-              if(mode == "idle") {
-                  this.dinoDimensions.currentDinoIndex = 0
-              }
-              else if(mode == "move") {
-                  this.dinoDimensions.currentDinoIndex = 4
-              }
-          }
-          let spriteInterval = 0
-          let listaFrames = []    
-
-          switch (mode) {
-              case "move":
-                  spriteInterval = 20
-                  break
-              case "idle":
-                  spriteInterval = 10
-          }
-          if (this.shoudDinoMoveItself && this.dinoCharacterData.frameCounter > spriteInterval) {
-              this.dinoDimensions.currentDinoIndex++
-              this.shoudDinoMoveItself = false
-              this.dinoCharacterData.frameCounter = 1
-          }
-          if (this.dinoDimensions.currentDinoIndex >= this.dinoDimensions.endRunningStateIndex && mode == "move") {
-              // Volta pra um index anterior ao de onde se deve começar a animação de corrida.
-              this.dinoDimensions.currentDinoIndex = 4
-          }
-          if (this.dinoDimensions.currentDinoIndex >= this.dinoDimensions.endIdleStateIndex && mode == "idle") {
-              // Volta pra um index anterior ao de onde se deve começar a animação de idle.
-              this.dinoDimensions.currentDinoIndex = 0
-          }
-          // Se forem as ultimas 6 imagens, o padding pode diminuir um pouco pra melhorar o corte
-          // as 4 primeiras imagens são em idle, as outras são de corrida
-          // Só tem um for pq o sprite so tem uma linha
-          for (let j = 0; j < this.dinoDimensions.columnCount; j++) {
-              let x1 = this.dinoDimensions.leftDinoPadding + (this.dinoDimensions.dinoWidth * j) + (this.dinoDimensions.leftDinoPadding * j)
-              let y1 = this.dinoDimensions.topDinoPadding + (this.dinoDimensions.dinoHeight * 0)
-              listaFrames[0 * this.dinoDimensions.columnCount + j] = {x1, y1}
-          }
-          this.dinoDimensions.currentDino = listaFrames[this.dinoDimensions.currentDinoIndex]
-          // ir incrementando o indexAtual a cada quadro
-          let ctx = this.gameCanvas.getContext('2d')
-          /* 
-              imagem a ser desenhada, 
-              posicao em x do começo do corte da imagem
-              posicao em y do começo do corte da imagem
-              largura em x do corte na imagem
-              largura em y do corte na imagem
-              posicao x da imagem resultado no canvas
-              posicao y da imagem resultado no canvas
-              largura da imagem
-              altura da imagem
-          */
-          ctx.drawImage(this.dinoCharacter, this.dinoDimensions.currentDino.x1,
-          this.dinoDimensions.currentDino.y1, this.dinoDimensions.dinoWidth,
-          this.dinoDimensions.dinoHeight, this.dinoCharacterData.posX,
-          this.dinoCharacterData.posY, this.dinoDimensions.dinoWidth, this.dinoDimensions.dinoHeight)
-      },
-
+      // Método para renderizar os corações que representam as vidas do dinossauro na tela.
       renderHearts() {
         const dinoHealth = this.dinoCharacterData.health
+        // Padding entre a esquerda e o primeiro coração.
         const heartPaddingX = 50
 
+        // Para cada coração (qtd de vidas) renderiza uma imagem. 
         for (let i = 0; i < dinoHealth; i++) {
           this.gameCanvasContext.drawImage(
           this.heart.image,
@@ -358,6 +303,7 @@ export default {
         }
       },
 
+      // Método renderizar os pontos que o jogador fez, na tela.
       renderPoints(points) {
         const textString = `Points: ${points}`
         const ctx = this.gameCanvasContext
@@ -365,7 +311,10 @@ export default {
         ctx.fillText(textString, 25, 115);
       },
 
+      // Método responsável por renderizar o background a cada momento (já que ele é o cenario que se move)
       updateBgPosition({moveX = 0, moveY = 0}) {
+        /* Se a posição X atual do cenário não é 0, atribui a posição atual à variável de posição X anterior. E incrementa a posição atual.
+        Mesma coisa para Y. Usaremos em breve. */
         if(moveX != 0) {
           this.bgStates.prevPosX = this.bgStates.posX
           this.bgStates.posX += moveX
@@ -376,56 +325,14 @@ export default {
         }
       },
 
-      checkCollision(obstacle) {
-        if(obstacle.hitDino == true) return
-
-        const dinoPos = {
-          x: this.dinoCharacterData.posX,
-          y: this.dinoCharacterData.posY,
-          w: this.dinoCharacterData.dimensions.dinoWidth,
-          h: this.dinoCharacterData.dimensions.dinoHeight
-        }
-        const obstaclePos = {
-          x: obstacle.posX,
-          y: obstacle.posY,
-          w: obstacle.width,
-          h: obstacle.height
-        }
-
-        if (dinoPos.x < obstaclePos.x + obstaclePos.w &&
-        dinoPos.x + dinoPos.w > obstaclePos.x &&
-        dinoPos.y < obstaclePos.y + obstaclePos.h &&
-        dinoPos.h + dinoPos.y > obstaclePos.y) {
-          obstacle.hitDino = true
-          if(obstacle.star) {
-            this.healDino()
-            this.resetObstacle(obstacle)
-          }
-          else this.damageDino() // Causa dano ao dinossauro se houver colisão com obstáculo
-        }
-      },
-
+      // Altera a velocidade com base no ponto do jogo em que o jogador chegou. A cada cenário, mais pontos. Quanto mais pontos, maior a velocidade.
       updateSpeed() {
         const points = this.points
         let increase = 2 * parseInt(points / 5)
         this.bgStates.velX = this.bgStates.startingVelX + increase
       },
 
-      healDino(healAmount = 1) {
-        this.dinoCharacterData.health += healAmount
-        if(this.dinoCharacterData.health > this.dinoCharacterData.maxHealth)
-          this.dinoCharacterData.health = this.dinoCharacterData.maxHealth
-      },
-
-      damageDino(damageAmount = 1) {
-        if(this.dinoCharacterData.health >= 1)
-          this.dinoCharacterData.health -= damageAmount
-        if(this.dinoCharacterData.health <= 0) {
-          this.dinoCharacterData.health = 0
-          this.dinoCharacterData.isDead = true
-        }
-      },
-
+      // Mecânica de pulo do dinossauro. A mecânica é feita simulando a gravidade. O pulo começa com intensidade forte e depois vai reduzindo, quanto mais se sobe.
       playerJump() {
         const maxJumpAcceleration = -15
         const maxFrameAtMaxSpeed = 2
@@ -447,6 +354,7 @@ export default {
 
       },
 
+      // Inicialização dos componentes que serão renderizados no canvas (que são imagens)
       setupImages() {
         this.dinoCharacter = new Image()
         this.dinoCharacter.src = this.dinoCharacterData.sprite
@@ -476,10 +384,13 @@ export default {
         this.obstacles.star.image.width = this.obstacles.star.width
         this.obstacles.star.image.height = this.obstacles.star.height
       },
-      
+
+      // Limpa o set de movimentos.
       clearMovementsSet() {
           this.movements = {up: false, down: false, left: false, right: false, special: false}
       },
+
+      // Retorna o resultado booleano do pressionamento de uma tecla.
       isItPressed(key) {
           return this.pressedKeys.has(key)
       }
