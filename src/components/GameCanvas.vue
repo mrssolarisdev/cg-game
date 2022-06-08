@@ -59,35 +59,7 @@ export default {
         none: false,
         special: false
       },
-    //   obstacles: {
-        // birdy: {
-        //   image: null,
-        //   posX: 0,
-        //   posY: 0,
-        //   width: 75,
-        //   height: 75,
-        //   hitDino: false,
-        //   birdy: true
-        // },
-        // rock: {
-        //   image: null,
-        //   posX: 0,
-        //   posY: 0,
-        //   width: 100,
-        //   height: 75,
-        //   hitDino: false,
-        //   rock: true
-        // },
-        // star: {
-        //   image: null,
-        //   posX: 0,
-        //   posY: 0,
-        //   width: 60,
-        //   height: 55,
-        //   hitDino: false,
-        //   star: true
-        // },
-    //   },
+      // Objeto que guarda os dados das vidas do dinossauro (os corações no topo da tela).
       heart: {
         image: null,
         posX: 25,
@@ -96,10 +68,10 @@ export default {
         height: 48,
         randomPosX: 0
       },
-
       bgResetOcurred: false
   }),
   computed: {
+      // Computed para retornar as dimensões do canvas
       getCanvasDimensions() {
           return {width: 1750, height: 900 }
       },
@@ -108,23 +80,35 @@ export default {
       // Solicita que o navegador execute essa função assim que possível, mas antes da próxima renderização de tela.
       window.requestAnimationFrame(this.loop)
   },
+  // Coisas que são feitas na montagem do componente são aquelas que dependem que os elementos estejam renderizados
+  // para ter efeito.
   mounted() {
-    
     // Setando os elementos que precisam de imagens em suas configurações para renderizar
     this.setupImages()
+    // Resgata o canvas
     this.gameCanvas = document.getElementById('myCanvas')
+    // Resgata o contexto do canvas
     this.gameCanvasContext = this.gameCanvas.getContext('2d')
+    // No descer de uma tecla, colocaremos ela no set de pressed keys.
     document.addEventListener('keydown', e => { this.pressedKeys.add(e.code);})
+    /* No subir de uma tecla, retiraremos ela do set de pressed keys. Fazemos isso para que só se contabilize 
+      um estímulo durante o tempo em que uma tecla desceu e continuou pressionada
+    */
     document.addEventListener('keyup', e => { this.pressedKeys.delete(e.code);})
+    // Geramos uma posição aleatória para o pássaro.
     this.obstacles.birdy.posY = Math.round((this.gameCanvas.height - 305) * Math.random())
-    //this.setBirdyRandomHeight()
+    // Resetamos todos os obstáculos, os retornando para uma posição específica do canvas que o jogador ainda não pode ver.
     this.resetObstacle(this.obstacles.star)
     this.resetObstacle(this.obstacles.rock)
     this.resetObstacle(this.obstacles.birdy)
+    // Ajusta posicionamento de obstáculos para que eles não se sobreponham
     this.preventOverlappingObstacles()
+    // Ajusta a posição Y inicial dos obstaculos
     this.obstacles.rock.posY = 630
     this.obstacles.star.posY = 615
+    // Posição X inicial do dinossauro
     this.dinoCharacterData.posX = 50
+    // Posição Y inicial do dinossauro é a posição onde o chão se encontra
     this.dinoCharacterData.posY = this.floorLevel
   },
   methods: {
@@ -363,6 +347,7 @@ export default {
         const canvasDim = this.getCanvasDimensions
         const rand = Math.round(1000 * Math.random())
         obstacle.posX = canvasDim.width + obstacle.posX + rand
+        console.log(canvasDim.width + obstacle.posX + rand)
         obstacle.hitDino = false
         if(obstacle.birdy)
           this.setBirdyRandomHeight()
